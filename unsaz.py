@@ -22,16 +22,8 @@ class Unsaz:
     client_pattern = "raw/{}_c.txt"
     server_pattern = "raw/{}_s.txt"
 
-    def __init__(self):
-        self._parse_args()
+    def __init__(self, input_file):
         colorama.init()
-
-    def _parse_args(self):
-        arg_parser = ArgumentParser(
-            description="Command line tool for processing Fiddler .saz files")
-        arg_parser.add_argument(
-            "-l", "--list", help="list requests and responses")
-        arg_parser.print_help()
 
     def do_list(self, saz_name):
         with ZipFile(saz_name) as saz_file:
@@ -76,5 +68,27 @@ class Unsaz:
                     print colorama.Style.RESET_ALL, server_data,
 
 if __name__ == "__main__":
-    unsaz = Unsaz()
-    unsaz.do_list(sys.argv[1])
+    parser = ArgumentParser(
+        description="Command line tool for processing Fiddler .saz files")
+    parser.add_argument("saz_file", type=file, help="Fiddler input file")
+    group_t = parser.add_argument_group("transaction options")
+    group_t = group_t.add_mutually_exclusive_group()
+    group_t.add_argument("-i", type=int, help="list a single transaction")
+    group_t.add_argument("-c", type=int, help="list a single request")
+    group_t.add_argument("-s", type=int, help="list a single response")
+    group_m = parser.add_argument_group("message options")
+    group_m.add_argument("-L", action="store_true",
+                         help="display request/response line")
+    group_m.add_argument("-H", action="store_true",
+                         help="display request/response headers")
+    group_m.add_argument("-B", action="store_true",
+                         help="display request/response body")
+#    group_s = parser.add_argument_group("sorting options")
+#    group_s.add_argument("-t", action="store_true",
+#                         help="sort transactions by timestamp")
+#    group_s.add_argument("-a", action="store_true",
+#                         help="sort transactions by address")
+    arguments = parser.parse_args()
+
+    unsaz = Unsaz(arguments.saz_file)
+    unsaz.do_list(arguments.saz_file.name)
