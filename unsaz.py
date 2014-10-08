@@ -135,8 +135,8 @@ if __name__ == "__main__":
     group_t.add_argument("-c", type=int, help="list a single request")
     group_t.add_argument("-s", type=int, help="list a single response")
     group_m = parser.add_argument_group("message options")
-    group_m.add_argument("-l", action="store_false",
-                         help="hide request/response line")
+#    group_m.add_argument("-l", action="store_false",
+#                         help="hide request/response line")
     group_m.add_argument("-H", action="store_true",
                          help="show request/response headers")
     group_m.add_argument("-B", action="store_true",
@@ -149,4 +149,12 @@ if __name__ == "__main__":
     arguments = parser.parse_args()
 
     unsaz = Unsaz(arguments.saz_file)
-    unsaz.list_all()
+    if arguments.i is not None:
+        unsaz.list_client(arguments.i)
+        unsaz.list_server(arguments.i)
+    elif arguments.c is not None:
+        unsaz.list_client(arguments.c)
+    elif arguments.s is not None:
+        unsaz.list_server(arguments.s)
+    else:
+        unsaz.list_all()
